@@ -1,0 +1,26 @@
+model Thread {
+  id      String @id @default(uuid()) @db.Uuid
+  title   String
+  content String @db.Text // body markdown
+
+  communityId String    @db.Uuid
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User      @relation("ThreadAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  comments Comment[]
+
+  replyCount     Int      @default(0) // jumlay replay postingan
+  lastActivityAt DateTime @default(now()) // di-update tiap ada reply => sorting "Aktif"
+
+  isPinned Boolean @default(false)
+  isLocked Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([communityId, lastActivityAt]) // list thread per komunitas, sortir yang aktif
+  @@index([communityId, createdAt]) // list thread per komunitas, sortir terbaru
+  @@index([authorId])
+  @@map("thread")
+}

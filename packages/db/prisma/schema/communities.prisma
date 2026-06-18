@@ -1,0 +1,41 @@
+enum MembershipRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+model Community {
+  id          String  @id @default(uuid()) @db.Uuid
+  slug        String  @unique
+  name        String
+  description String? @db.Text
+  imageUrl    String?
+
+  createdById String
+  createdBy   User   @relation("CommunityCreator", fields: [createdById], references: [id])
+
+  memberships Membership[]
+  threads     Thread[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdById])
+  @@map("community")
+}
+
+model Membership {
+  id   String         @id @default(uuid()) @db.Uuid
+  role MembershipRole @default(MEMBER)
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  communityId String    @db.Uuid
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, communityId]) // 1 user cuma 1 membership per komunitas
+  @@index([communityId])
+  @@map("membership")
+}

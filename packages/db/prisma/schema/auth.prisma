@@ -9,6 +9,11 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  communities Community[]  @relation("CommunityCreator")
+  memberships Membership[]
+  threads     Thread[]     @relation("ThreadAuthor")
+  comments    Comment[]    @relation("CommentAuthor")
+
   @@unique([email])
   @@map("user")
 }
